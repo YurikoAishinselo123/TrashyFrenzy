@@ -1,56 +1,84 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
-    public float maxSpeed = 13f;
-    public float acceleration = 30f;
-    public float drag = 10f;
+    private float maxSpeed = 13f;
+    private float acceleration = 30f;
+    [HideInInspector] float drag = 10f;
 
     [Header("Rotation")]
     public float rotationSpeed = 10f;
 
     [Header("Input")]
-    public VirtualJoystick joystick;
+    public float mouseSensitivity = 1.2f;
+    public bool requireClick = false;
 
-    Vector2 velocity;
+    private PlayerInputActions input;
+    private Vector2 velocity;
+    private Vector2 mouseDelta;
+    private bool isPressing;
+
+    void Awake()
+    {
+        input = new PlayerInputActions();
+
+        input.Player.Delta.performed += ctx => mouseDelta = ctx.ReadValue<Vector2>();
+        input.Player.Delta.canceled += _ => mouseDelta = Vector2.zero;
+
+        input.Player.Click.performed += _ => isPressing = true;
+        input.Player.Click.canceled += _ => isPressing = false;
+    }
+
+    void OnEnable() => input.Enable();
+    void OnDisable() => input.Disable();
 
     void Update()
     {
-        ApplyJoystickForce();
-        ApplyDrag();
+        bool thrusting = !requireClick || isPressing;
+
+        if (thrusting)
+            ApplyMouseDeltaForce();
+        else
+            ApplyDrag();
+
         Move();
+        ApplyDrag();
         RotateToVelocity();
     }
 
-    void ApplyJoystickForce()
+    void ApplyMouseDeltaForce()
     {
-        Vector2 input = joystick.InputVector;
-
-        float inputMag = input.magnitude;
-        if (inputMag < 0.01f)
+        if (mouseDelta.sqrMagnitude < 0.01f)
             return;
 
-        Vector2 force = input.normalized * acceleration * inputMag;
-        velocity += force * Time.deltaTime;
+        Vector2 inputForce = mouseDelta * mouseSensitivity;
+
+        velocity += inputForce * acceleration * Time.deltaTime;
 
         velocity = Vector2.ClampMagnitude(velocity, maxSpeed);
     }
 
     void ApplyDrag()
     {
-        float dragStrength = joystick.InputVector.magnitude < 0.1f
-            ? drag
-            : drag * 0.3f;
+        float dragStrength = mouseDelta.magnitude < 0.1f ? drag : drag * 0.05f;
 
+        if (mouseDelta.magnitude < 0.1f)
+        {
+            Debug.Log("Move");
+            Debug.Log("Mousedelta magnitude " + mouseDelta.magnitude);
+
+        }
+        else
+        {
+            Debug.Log("stop");
+        }
         velocity = Vector2.MoveTowards(
             velocity,
             Vector2.zero,
             dragStrength * Time.deltaTime
         );
-
-        if (velocity.sqrMagnitude < 0.0005f)
-            velocity = Vector2.zero;
     }
 
     void Move()
@@ -64,9 +92,11 @@ public class PlayerController : MonoBehaviour
             return;
 
         float angle = Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg;
+        Quaternion targetRotation = Quaternion.Euler(0f, 0f, angle);
+
         transform.rotation = Quaternion.Lerp(
             transform.rotation,
-            Quaternion.Euler(0, 0, angle),
+            targetRotation,
             rotationSpeed * Time.deltaTime
         );
     }
