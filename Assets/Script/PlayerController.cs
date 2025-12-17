@@ -4,16 +4,15 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
-    private float maxSpeed = 13f;
-    private float acceleration = 30f;
-    [HideInInspector] float drag = 10f;
+    public float maxSpeed = 13f;
+    public float acceleration = 30f;
+    public float drag = 10f;
 
     [Header("Rotation")]
     public float rotationSpeed = 10f;
 
     [Header("Input")]
     public float mouseSensitivity = 1.2f;
-    public bool requireClick = false;
 
     private PlayerInputActions input;
     private Vector2 velocity;
@@ -36,15 +35,13 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        bool thrusting = !requireClick || isPressing;
+        bool thrusting = isPressing;
 
         if (thrusting)
             ApplyMouseDeltaForce();
-        else
-            ApplyDrag();
 
-        Move();
         ApplyDrag();
+        Move();
         RotateToVelocity();
     }
 
@@ -63,17 +60,6 @@ public class PlayerController : MonoBehaviour
     void ApplyDrag()
     {
         float dragStrength = mouseDelta.magnitude < 0.1f ? drag : drag * 0.05f;
-
-        if (mouseDelta.magnitude < 0.1f)
-        {
-            Debug.Log("Move");
-            Debug.Log("Mousedelta magnitude " + mouseDelta.magnitude);
-
-        }
-        else
-        {
-            Debug.Log("stop");
-        }
         velocity = Vector2.MoveTowards(
             velocity,
             Vector2.zero,
