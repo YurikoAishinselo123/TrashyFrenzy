@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GarbageSpawnerManager : MonoBehaviour
+public class GarbageSpawner : MonoBehaviour
 {
-    [SerializeField] GameObject garbagePrefab;
-
     [Header("Spawn Range")]
     [SerializeField] float spawnRate = 5f;
 
@@ -21,6 +19,10 @@ public class GarbageSpawnerManager : MonoBehaviour
     [SerializeField] float spawnY = 6f;
     [SerializeField] float minStopY = -3f;
     [SerializeField] float maxStopY = 2f;
+
+    [Header("Prefab")]
+    [SerializeField] GameObject garbagePrefab;
+
 
     List<float> activeXPositions = new List<float>();
 
