@@ -3,7 +3,7 @@ using UnityEngine;
 public class GarbageController : MonoBehaviour
 {
     [Header("Movement")]
-    [SerializeField] float fallSpeed = 5f;
+    [SerializeField] float fallSpeed = 3f;
 
     float targetY;
     bool isFalling = true;
@@ -28,4 +28,6 @@ public class GarbageController : MonoBehaviour
 
         transform.position = pos;
     }
+
+
 }

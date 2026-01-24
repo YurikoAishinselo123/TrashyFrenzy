@@ -108,4 +108,10 @@ public class PlayerController : MonoBehaviour
             rotationSpeed * Time.deltaTime
         );
     }
+
+
+    void CollectGarbgae()
+    {
+
+    }
 }
