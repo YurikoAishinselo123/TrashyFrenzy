@@ -19,19 +19,10 @@ public class PlayerInteraction : MonoBehaviour
 
         RaycastHit2D hit = Physics2D.Raycast(origin.position, origin.right, range, interactionLayer);
         if (!hit) return;
-        Debug.Log("Raycast hit: " + hit.collider.name);
 
-        if (hit.collider.TryGetComponent(out CollectibleItem item))
+        if (hit.collider.TryGetComponent(out IInteractable interactable))
         {
-            Debug.Log("collected");
-            item.Collect(inventory);
-            return;
+            interactable.Interact(inventory);
         }
-
-        if (hit.collider.TryGetComponent(out StorageZone storage))
-        {
-            storage.TryStore(inventory);
-        }
-
     }
 }
