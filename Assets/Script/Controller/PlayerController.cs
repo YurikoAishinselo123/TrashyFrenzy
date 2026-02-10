@@ -20,10 +20,12 @@ public class PlayerController : MonoBehaviour
     Vector2 mouseDelta;
     bool isPressing;
 
+
     // New variables for fish current
     bool inCurrent = false;
     [SerializeField] float currentAccelerationMultiplier = 0.3f; // 30% of normal acceleration
     [SerializeField] float currentMaxSpeedMultiplier = 0.5f; // 50% of normal max speed
+    [SerializeField] SpriteRenderer spriteRenderer;
 
     void Awake()
     {
@@ -48,8 +50,7 @@ public class PlayerController : MonoBehaviour
         Vector2 finalVelocity = Vector2.ClampMagnitude(playerVelocity, currentMaxSpeed);
 
         transform.position += (Vector3)(finalVelocity * Time.deltaTime);
-        RotateToVelocity(finalVelocity);
-
+        FaceLeftRight(finalVelocity);
         // Reset current flag each frame (fish must reapply)
         inCurrent = false;
     }
@@ -96,18 +97,14 @@ public class PlayerController : MonoBehaviour
     }
 
     // ---------------- ROTATION ----------------
-    void RotateToVelocity(Vector2 vel)
+    void FaceLeftRight(Vector2 vel)
     {
-        if (vel.sqrMagnitude < 0.01f)
+        if (Mathf.Abs(vel.x) < 0.05f)
             return;
 
-        float angle = Mathf.Atan2(vel.y, vel.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Lerp(
-            transform.rotation,
-            Quaternion.Euler(0f, 0f, angle),
-            rotationSpeed * Time.deltaTime
-        );
+        spriteRenderer.flipX = vel.x < 0f;
     }
+
 
 
     void CollectGarbgae()
