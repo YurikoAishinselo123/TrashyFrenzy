@@ -2,7 +2,9 @@ using UnityEngine;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    [SerializeField] float range = 2f;
+    [Header("Circle Cast")]
+    [SerializeField] float range = 0.5f;
+    [SerializeField] float radius = 1f;
     [SerializeField] LayerMask interactionLayer;
     [SerializeField] Transform origin;
 
@@ -15,14 +17,46 @@ public class PlayerInteraction : MonoBehaviour
 
     void Update()
     {
-        if (!Input.GetKeyDown(KeyCode.E)) return;
+        RaycastHit2D hit = Physics2D.CircleCast(
+            origin.position,
+            radius,
+            origin.right,
+            range,
+            interactionLayer
+        );
 
-        RaycastHit2D hit = Physics2D.Raycast(origin.position, origin.right, range, interactionLayer);
-        if (!hit) return;
+        if (!hit)
+            return;
 
-        if (hit.collider.TryGetComponent(out IInteractable interactable))
+        // ---------- AUTO COLLECT ----------
+        if (hit.collider.TryGetComponent(out IAutoInteractable auto))
         {
-            interactable.Interact(inventory);
+            auto.AutoInteract(inventory);
+            return;
         }
+
+        // ---------- MANUAL INTERACT ----------
+        if (!Input.GetKeyDown(KeyCode.E))
+            return;
+
+        if (hit.collider.TryGetComponent(out IManualInteractable manual))
+        {
+            manual.Interact(inventory);
+        }
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (origin == null)
+            return;
+
+        Gizmos.color = Color.cyan;
+
+        Vector3 start = origin.position;
+        Vector3 end = start + origin.right * range;
+
+        Gizmos.DrawWireSphere(start, radius);
+        Gizmos.DrawWireSphere(end, radius);
+        Gizmos.DrawLine(start, end);
     }
 }
