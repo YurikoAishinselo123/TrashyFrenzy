@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-public class StorageZone : MonoBehaviour, IInteractable
+public class StorageZone : MonoBehaviour, IManualInteractable
 {
     int storedAmount;
     public int StoredAmount => storedAmount;

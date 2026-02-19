@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class CollectibleItem : MonoBehaviour, IInteractable
+public class CollectibleItem : MonoBehaviour, IAutoInteractable
 {
     [SerializeField] int amount = 1;
 
-    public void Interact(PlayerInventory inventory)
+    public void AutoInteract(PlayerInventory inventory)
     {
         inventory.AddItem(amount);
 
